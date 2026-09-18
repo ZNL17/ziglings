@@ -8,9 +8,9 @@ const S = packed struct(u2) {
 };
 
 // Try to make it compile without adding an `else` prong!
-// 00 ->       00 = 0 
+// 00 ->       00 = 0
 // 01 -> 10 -> 11 = 1
-// 10 -> 01 -> 10 = -1 
+// 10 -> 01 -> 10 = -1
 // 11 -> 00 -> 01 = 2
 
 comptime {
@@ -36,13 +36,13 @@ const U = packed union(u2) {
 };
 
 // Find and remove the duplicate case!
-
+// 01 -> 10
 comptime {
     const u: U = .{ .a = 3 };
     switch (u) {
         .{ .a = 3 } => {}, // ok! 11
         .{ .a = 2 }, // 10
-        .{ .b = -1 }, //10
+        .{ .a = 1 },
         .{ .a = 0 }, // 00
         => @compileError("We don't want to end up here!"),
     }
