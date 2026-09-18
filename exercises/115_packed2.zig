@@ -8,14 +8,18 @@ const S = packed struct(u2) {
 };
 
 // Try to make it compile without adding an `else` prong!
+// 00 ->       00 = 0 
+// 01 -> 10 -> 11 = 1
+// 10 -> 01 -> 10 = -1 
+// 11 -> 00 -> 01 = 2
 
 comptime {
     const s: S = .{ .a = true, .b = -1 };
     switch (s) {
         .{ .a = true, .b = -1 } => {}, // ok!
-        .{ .a = true, .b = ??? },
-        .{ .a = ???, .b = 0 },
-        .{ .a = ???, .b = ??? },
+        .{ .a = true, .b = 0 },
+        .{ .a = false, .b = 0 },
+        .{ .a = false, .b = -1 },
         => @compileError("We don't want to end up here!"),
     }
 }
@@ -36,11 +40,10 @@ const U = packed union(u2) {
 comptime {
     const u: U = .{ .a = 3 };
     switch (u) {
-        .{ .a = 3 } => {}, // ok!
-        .{ .a = 2 },
-        .{ .b = 1 },
-        .{ .b = -1 },
-        .{ .a = 0 },
+        .{ .a = 3 } => {}, // ok! 11
+        .{ .a = 2 }, // 10
+        .{ .b = -1 }, //10
+        .{ .a = 0 }, // 00
         => @compileError("We don't want to end up here!"),
     }
 }
@@ -65,7 +68,7 @@ pub fn main() void {
     // Reminder: if the sign bit of a float is set, the number is negative!
 
     var number: Float = .{ .value = 2.34 };
-    number.bits.??? = ???;
+    number.bits.sign = 1;
     if (number.value != -2.34) {
         std.debug.print("Make it negative!\n", .{});
     }
